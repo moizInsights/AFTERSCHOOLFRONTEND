@@ -49,25 +49,26 @@ app.param('collectionName', (req, res, next, collectionName) => {
   next();
 });
 
-// Generic search route
+// Updated Search Route for lessons (or any collection with these fields)
 app.get('/collection/:collectionName/search', async (req, res, next) => {
   const query = req.query.q;
   const collection = req.collection;
 
   try {
-    // If no search query, return all
+    // If no search query provided, return all documents.
     if (!query) {
       console.log("No search query provided; fetching all documents.");
       const results = await collection.find({}).toArray();
       return res.json(results);
     }
     console.log("Search query received:", query);
+    console.log("Collection name:", req.params.collectionName);
 
-    // Perform search
+    // Searching on fields that actually exist in lesson documents.
     const results = await collection.find({
       $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { description: { $regex: query, $options: 'i' } }
+        { subject: { $regex: query, $options: 'i' } },
+        { location: { $regex: query, $options: 'i' } }
       ]
     }).toArray();
 
@@ -78,7 +79,7 @@ app.get('/collection/:collectionName/search', async (req, res, next) => {
   }
 });
 
-// Generic GET
+// Generic GET: List all documents in a collection.
 app.get('/collection/:collectionName', async (req, res, next) => {
   try {
     const results = await req.collection.find({}).toArray();
@@ -88,10 +89,10 @@ app.get('/collection/:collectionName', async (req, res, next) => {
   }
 });
 
-// Serve static images if needed
+// Serve static images if needed.
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// Generic POST
+// Generic POST: Insert a document into any collection.
 app.post('/collection/:collectionName', async (req, res, next) => {
   try {
     const result = await req.collection.insertOne(req.body);
@@ -104,7 +105,7 @@ app.post('/collection/:collectionName', async (req, res, next) => {
   }
 });
 
-// Specialized PUT for "Products" collection only
+// Specialized PUT for "Products" collection only.
 app.put('/collection/Products/:_id', async (req, res, next) => {
   try {
     const { _id } = req.params;
@@ -132,7 +133,7 @@ app.put('/collection/Products/:_id', async (req, res, next) => {
   }
 });
 
-// Generic PUT
+// Generic PUT: Update a document in any collection.
 app.put('/collection/:collectionName/:_id', async (req, res, next) => {
   try {
     const result = await req.collection.updateOne(
@@ -146,7 +147,7 @@ app.put('/collection/:collectionName/:_id', async (req, res, next) => {
   }
 });
 
-// Generic GET by _id
+// Generic GET by _id: Retrieve a document by id from any collection.
 app.get('/collection/:collectionName/:_id', async (req, res, next) => {
   try {
     const result = await req.collection.findOne({ _id: new ObjectId(req.params._id) });
