@@ -10,15 +10,10 @@
   <body>
     <div id="app">
       <!-- Header -->
-      <header
-        class="fixed top-0 w-full p-4 bg-white shadow-md flex justify-between items-center z-10"
-      >
-        <a
-          href="#"
-          @click.prevent="goHome"
-          class="text-xl font-bold underline decoration-green-400"
-          >After School Program</a
-        >
+      <header class="fixed top-0 w-full p-4 bg-white shadow-md flex justify-between items-center z-10">
+        <a href="#" @click.prevent="goHome" class="text-xl font-bold underline decoration-green-400">
+          After School Program
+        </a>
         <input
           v-model="searchQuery"
           type="search"
@@ -33,7 +28,7 @@
           🛒 Cart ({{ cartItemCount }})
         </button>
       </header>
- 
+      
       <!-- Lessons Section -->
       <section v-if="!checkoutPage" class="pt-24 max-w-6xl mx-auto p-4">
         <div class="flex justify-between mb-4">
@@ -52,14 +47,11 @@
             </select>
           </div>
         </div>
- 
+        
         <div v-if="isLoading" class="text-center text-green-500">
           Loading lessons...
         </div>
-        <div
-          v-else-if="sortedLessons.length === 0"
-          class="text-center text-red-500"
-        >
+        <div v-else-if="sortedLessons.length === 0" class="text-center text-red-500">
           No lessons found.
         </div>
         <div v-else class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -73,10 +65,7 @@
             <p><strong>Location:</strong> {{ lesson.location }}</p>
             <p><strong>Available:</strong> {{ lesson.spaces }}</p>
             <p><strong>Price:</strong> {{ lesson.price }} AED</p>
-            <p
-              v-if="lesson.spaces > 0 && lesson.spaces < 5"
-              class="buy-now-alert"
-            >
+            <p v-if="lesson.spaces > 0 && lesson.spaces < 5" class="buy-now-alert">
               Buy Now — Limited spots!
             </p>
             <button
@@ -89,8 +78,8 @@
           </div>
         </div>
       </section>
- 
-      <!-- Checkout -->
+      
+      <!-- Checkout Section -->
       <section
         v-if="checkoutPage"
         class="pt-24 max-w-4xl mx-auto p-4 pb-40 min-h-[400px]"
@@ -139,21 +128,21 @@
           </div>
           <div>
             <label class="block font-semibold mb-1">Delivery Method</label>
-            <label class="block"
-              ><input
+            <label class="block">
+              <input
                 type="radio"
                 value="Home Delivery"
                 v-model="user.method"
               />
-              Home</label
-            >
-            <label class="block"
-              ><input type="radio" value="Business" v-model="user.method" /> 🏢
-              Business</label
-            >
+              Home
+            </label>
+            <label class="block">
+              <input type="radio" value="Business" v-model="user.method" />
+              🏢 Business
+            </label>
           </div>
         </div>
- 
+        
         <h3 class="text-xl font-bold mt-8 mb-2">Your Info</h3>
         <table class="w-full border mb-6">
           <tr>
@@ -177,7 +166,7 @@
             <td class="p-2">{{ user.method }}</td>
           </tr>
         </table>
- 
+        
         <h3 class="text-xl font-bold mb-2">Cart Summary</h3>
         <table v-if="cart.length" class="w-full border mb-6">
           <thead class="bg-green-100">
@@ -192,36 +181,23 @@
           <tbody>
             <tr v-for="item in cart" :key="item._id" class="border-b">
               <td class="p-2">
-                <img
-                  :src="item.image"
-                  class="w-16 h-16 object-cover rounded border"
-                />
+                <img :src="item.image" class="w-16 h-16 object-cover rounded border" />
               </td>
               <td class="p-2 font-medium">{{ item.subject }}</td>
               <td class="p-2">
                 <div class="flex items-center gap-2">
-                  <button
-                    @click="decrementQty(item)"
-                    class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
-                  >
+                  <button @click="decrementQty(item)" class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
                     ➖
                   </button>
                   <span>{{ item.quantity }}</span>
-                  <button
-                    @click="incrementQty(item)"
-                    :disabled="item.quantity >= item.spaces"
-                    class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
-                  >
+                  <button @click="incrementQty(item)" :disabled="item.quantity >= item.spaces" class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300">
                     ➕
                   </button>
                 </div>
               </td>
               <td class="p-2">{{ item.quantity * item.price }} AED</td>
               <td class="p-2">
-                <button
-                  @click="removeItem(item)"
-                  class="text-red-600 hover:underline"
-                >
+                <button @click="removeItem(item)" class="text-red-600 hover:underline">
                   🗑 Remove
                 </button>
               </td>
@@ -229,27 +205,23 @@
           </tbody>
         </table>
         <p v-else class="text-red-500 mb-4">Your cart is empty.</p>
- 
+        
         <p class="font-bold text-xl mb-4">Total: {{ cartTotal }} AED</p>
         <div class="flex gap-4">
           <button @click="toggleCart" class="bg-gray-300 px-4 py-2 rounded">
             ⬅ Back
           </button>
-          <button
-            @click="submitOrder"
-            :disabled="!isValidOrder"
-            :class="['px-4 py-2 rounded text-white', isValidOrder ? 'bg-green-600 hover:bg-green-800' : 'bg-green-300 cursor-not-allowed']"
-          >
+          <button @click="submitOrder" :disabled="!isValidOrder" :class="['px-4 py-2 rounded text-white', isValidOrder ? 'bg-green-600 hover:bg-green-800' : 'bg-green-300 cursor-not-allowed']">
             ✅ Confirm Order
           </button>
         </div>
       </section>
- 
+      
       <footer class="text-center bg-green-400 text-white py-4 bottom-0 w-full">
         &copy; 2025 After School Program
       </footer>
     </div>
- 
+    
     <script>
       const BASE_URL = "https://afterschoolbackend-7s9g.onrender.com";
       new Vue({
@@ -287,12 +259,8 @@
               if (typeof valA === "string") valA = valA.toLowerCase();
               if (typeof valB === "string") valB = valB.toLowerCase();
               return this.sortOrder === "asc"
-                ? valA > valB
-                  ? 1
-                  : -1
-                : valA < valB
-                ? 1
-                : -1;
+                ? valA > valB ? 1 : -1
+                : valA < valB ? 1 : -1;
             });
           },
           isValidOrder() {
@@ -317,8 +285,9 @@
           async fetchLessons(query = "") {
             this.isLoading = true;
             try {
+              // Updated URL including the "lessons" collection.
               const res = await fetch(
-                `${BASE_URL}/search?q=${encodeURIComponent(query)}`
+                `${BASE_URL}/collection/lessons/search?q=${encodeURIComponent(query)}`
               );
               const data = await res.json();
               this.lessons = data;
@@ -351,8 +320,9 @@
                 quantity: item.quantity,
               })),
             };
- 
+
             try {
+              // Submit the order to the "order" collection (adjust if necessary)
               const res = await fetch(`${BASE_URL}/collection/order`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -360,17 +330,17 @@
               });
               const msg = await res.text();
               alert(msg);
- 
-              //  Correct PUT URL and field name
+
+              // Update lesson spaces after order is placed.
               for (let item of this.cart) {
                 const updatedSpaces = item.spaces - item.quantity;
-                await fetch(`${BASE_URL}/lessons/${item._id}`, {
+                await fetch(`${BASE_URL}/collection/lessons/${item._id}`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ spaces: updatedSpaces }),
                 });
               }
- 
+
               this.cart = [];
               this.toggleCart();
               this.fetchLessons();
@@ -392,4 +362,4 @@
     </script>
   </body>
 </html>
- 
+`
