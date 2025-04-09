@@ -222,7 +222,7 @@
                   @click="removeItem(item)"
                   class="text-red-600 hover:underline"
                 >
-                  🗑️ Remove
+                  🗑 Remove
                 </button>
               </td>
             </tr>
@@ -319,7 +319,7 @@
             this.isLoading = true;
             try {
               const res = await fetch(
-                `${BASE_URL}/search?q=${encodeURIComponent(query)}`
+                ${BASE_URL}/search?q=${encodeURIComponent(query)}
               );
               const data = await res.json();
               this.lessons = data;
@@ -342,7 +342,7 @@
             this.cart = this.cart.filter((i) => i._id !== item._id);
           },
           async submitOrder() {
-            const fullName = `${this.user.firstName} ${this.user.lastName}`;
+            const fullName = ${this.user.firstName} ${this.user.lastName};
             const orderData = {
               name: fullName,
               phone: this.user.phone,
@@ -354,7 +354,7 @@
             };
 
             try {
-              const res = await fetch(`${BASE_URL}/orders`, {
+              const res = await fetch(${BASE_URL}/orders, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData),
@@ -362,13 +362,12 @@
               const msg = await res.text();
               alert(msg);
 
-              // 🟢 Update lesson spaces via PUT
               for (let item of this.cart) {
                 const updatedSpaces = item.spaces - item.quantity;
-                await fetch(`${BASE_URL}/collection/Products/${item._id}`, {
+                await fetch(${BASE_URL}/lessons/${item._id}, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ Spaces: updatedSpaces }),
+                  body: JSON.stringify({ spaces: updatedSpaces }),
                 });
               }
 
