@@ -10,7 +10,6 @@
   <body>
     <div id="app">
       <!-- Header -->
-       <!--  -->
       <header
         class="fixed top-0 w-full p-4 bg-white shadow-md flex justify-between items-center z-10"
       >
@@ -34,7 +33,7 @@
           🛒 Cart ({{ cartItemCount }})
         </button>
       </header>
-
+ 
       <!-- Lessons Section -->
       <section v-if="!checkoutPage" class="pt-24 max-w-6xl mx-auto p-4">
         <div class="flex justify-between mb-4">
@@ -53,7 +52,7 @@
             </select>
           </div>
         </div>
-
+ 
         <div v-if="isLoading" class="text-center text-green-500">
           Loading lessons...
         </div>
@@ -78,7 +77,7 @@
               v-if="lesson.spaces > 0 && lesson.spaces < 5"
               class="buy-now-alert"
             >
-              🔥 Buy Now — Limited spots!
+              Buy Now — Limited spots!
             </p>
             <button
               @click="addToCart(lesson)"
@@ -90,7 +89,7 @@
           </div>
         </div>
       </section>
-
+ 
       <!-- Checkout -->
       <section
         v-if="checkoutPage"
@@ -146,7 +145,7 @@
                 value="Home Delivery"
                 v-model="user.method"
               />
-              🏠 Home</label
+              Home</label
             >
             <label class="block"
               ><input type="radio" value="Business" v-model="user.method" /> 🏢
@@ -154,7 +153,7 @@
             >
           </div>
         </div>
-
+ 
         <h3 class="text-xl font-bold mt-8 mb-2">Your Info</h3>
         <table class="w-full border mb-6">
           <tr>
@@ -178,7 +177,7 @@
             <td class="p-2">{{ user.method }}</td>
           </tr>
         </table>
-
+ 
         <h3 class="text-xl font-bold mb-2">Cart Summary</h3>
         <table v-if="cart.length" class="w-full border mb-6">
           <thead class="bg-green-100">
@@ -230,7 +229,7 @@
           </tbody>
         </table>
         <p v-else class="text-red-500 mb-4">Your cart is empty.</p>
-
+ 
         <p class="font-bold text-xl mb-4">Total: {{ cartTotal }} AED</p>
         <div class="flex gap-4">
           <button @click="toggleCart" class="bg-gray-300 px-4 py-2 rounded">
@@ -245,13 +244,12 @@
           </button>
         </div>
       </section>
-
+ 
       <footer class="text-center bg-green-400 text-white py-4 bottom-0 w-full">
         &copy; 2025 After School Program
       </footer>
     </div>
-
-     
+ 
     <script>
       const BASE_URL = "https://afterschoolbackend-7s9g.onrender.com";
       new Vue({
@@ -353,17 +351,17 @@
                 quantity: item.quantity,
               })),
             };
-     
+ 
             try {
-              const res = await fetch(`${BASE_URL}/orders`, {
+              const res = await fetch(`${BASE_URL}/collection/orders`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(orderData),
               });
               const msg = await res.text();
               alert(msg);
-     
-              // ✅ Correct PUT URL and field name
+ 
+              //  Correct PUT URL and field name
               for (let item of this.cart) {
                 const updatedSpaces = item.spaces - item.quantity;
                 await fetch(`${BASE_URL}/lessons/${item._id}`, {
@@ -372,7 +370,7 @@
                   body: JSON.stringify({ spaces: updatedSpaces }),
                 });
               }
-     
+ 
               this.cart = [];
               this.toggleCart();
               this.fetchLessons();
@@ -392,7 +390,6 @@
         },
       });
     </script>
-     
-     
   </body>
 </html>
+ 
