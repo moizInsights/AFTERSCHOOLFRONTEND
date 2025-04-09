@@ -362,12 +362,13 @@
               const msg = await res.text();
               alert(msg);
 
+              // 🟢 Update lesson spaces via PUT
               for (let item of this.cart) {
                 const updatedSpaces = item.spaces - item.quantity;
-                await fetch(${BASE_URL}/lessons/${item._id}, {
+                await fetch(${BASE_URL}/collection/Products/${item._id}, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ spaces: updatedSpaces }),
+                  body: JSON.stringify({ Spaces: updatedSpaces }),
                 });
               }
 
