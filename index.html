@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>After School Activities</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <link rel="stylesheet" crossorigin href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Header -->
+       <!--  -->
+      <header
+        class="fixed top-0 w-full p-4 bg-white shadow-md flex justify-between items-center z-10"
+      >
+        <a
+          href="#"
+          @click.prevent="goHome"
+          class="text-xl font-bold underline decoration-green-400"
+          >After School Program</a
+        >
+        <input
+          v-model="searchQuery"
+          type="search"
+          placeholder="Search..."
+          class="p-2 border rounded"
+        />
+        <button
+          v-if="cartItemCount > 0"
+          @click="toggleCart"
+          class="bg-green-600 text-white px-3 py-2 cursor-pointer rounded"
+        >
+          🛒 Cart ({{ cartItemCount }})
+        </button>
+      </header>
+
+      <!-- Lessons Section -->
+      <section v-if="!checkoutPage" class="pt-24 max-w-6xl mx-auto p-4">
+        <div class="flex justify-between mb-4">
+          <h2 class="text-2xl font-bold">Lessons</h2>
+          <div class="flex gap-2">
+            <select v-model="sortAttribute" class="p-2 border">
+              <option disabled value="">Sort By</option>
+              <option value="subject">Subject</option>
+              <option value="location">Location</option>
+              <option value="price">Price</option>
+              <option value="spaces">Availability</option>
+            </select>
+            <select v-model="sortOrder" class="p-2 border">
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+
+        <div v-if="isLoading" class="text-center text-green-500">
+          Loading lessons...
+        </div>
+        <div
+          v-else-if="sortedLessons.length === 0"
+          class="text-center text-red-500"
+        >
+          No lessons found.
+        </div>
+        <div v-else class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div
+            v-for="lesson in sortedLessons"
+            :key="lesson._id"
+            class="border p-4 shadow"
+          >
+            <img :src="lesson.image" class="w-full h-32 object-cover mb-2" />
+            <h3 class="text-xl font-bold">{{ lesson.subject }}</h3>
+            <p><strong>Location:</strong> {{ lesson.location }}</p>
+            <p><strong>Available:</strong> {{ lesson.spaces }}</p>
+            <p><strong>Price:</strong> {{ lesson.price }} AED</p>
+            <p
+              v-if="lesson.spaces > 0 && lesson.spaces < 5"
+              class="buy-now-alert"
+            >
+              🔥 Buy Now — Limited spots!
+            </p>
+            <button
+              @click="addToCart(lesson)"
+              :disabled="lesson.spaces <= 0"
+              class="w-full mt-2 py-1 border rounded hover:bg-green-600 hover:text-white cursor-pointer"
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Checkout -->
+      <section
+        v-if="checkoutPage"
+        class="pt-24 max-w-4xl mx-auto p-4 pb-40 min-h-[400px]"
+      >
+        <h2 class="text-3xl font-bold mb-4">Checkout</h2>
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block font-semibold mb-1">First Name</label>
+            <input
+              v-model="user.firstName"
+              placeholder="First Name"
+              class="border p-2 w-full rounded"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Last Name</label>
+            <input
+              v-model="user.lastName"
+              placeholder="Last Name"
+              class="border p-2 w-full rounded"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Phone</label>
+            <input
+              v-model="user.phone"
+              placeholder="Phone (7–15 digits)"
+              class="border p-2 w-full rounded"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Address</label>
+            <input
+              v-model="user.address"
+              placeholder="Address"
+              class="border p-2 w-full rounded"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Zip Code</label>
+            <input
+              v-model="user.zip"
+              placeholder="5-digit Zip"
+              class="border p-2 w-full rounded"
+            />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Delivery Method</label>
+            <label class="block"
+              ><input
+                type="radio"
+                value="Home Delivery"
+                v-model="user.method"
+              />
+              🏠 Home</label
+            >
+            <label class="block"
+              ><input type="radio" value="Business" v-model="user.method" /> 🏢
+              Business</label
+            >
+          </div>
+        </div>
+
+        <h3 class="text-xl font-bold mt-8 mb-2">Your Info</h3>
+        <table class="w-full border mb-6">
+          <tr>
+            <td class="p-2 font-semibold">Name:</td>
+            <td class="p-2">{{ user.firstName }} {{ user.lastName }}</td>
+          </tr>
+          <tr>
+            <td class="p-2 font-semibold">Phone:</td>
+            <td class="p-2">{{ user.phone }}</td>
+          </tr>
+          <tr>
+            <td class="p-2 font-semibold">Address:</td>
+            <td class="p-2">{{ user.address }}</td>
+          </tr>
+          <tr>
+            <td class="p-2 font-semibold">Zip:</td>
+            <td class="p-2">{{ user.zip }}</td>
+          </tr>
+          <tr>
+            <td class="p-2 font-semibold">Delivery:</td>
+            <td class="p-2">{{ user.method }}</td>
+          </tr>
+        </table>
+
+        <h3 class="text-xl font-bold mb-2">Cart Summary</h3>
+        <table v-if="cart.length" class="w-full border mb-6">
+          <thead class="bg-green-100">
+            <tr>
+              <th class="p-2">Picture</th>
+              <th class="p-2">Lesson</th>
+              <th class="p-2">Qty</th>
+              <th class="p-2">Total</th>
+              <th class="p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in cart" :key="item._id" class="border-b">
+              <td class="p-2">
+                <img
+                  :src="item.image"
+                  class="w-16 h-16 object-cover rounded border"
+                />
+              </td>
+              <td class="p-2 font-medium">{{ item.subject }}</td>
+              <td class="p-2">
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="decrementQty(item)"
+                    class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                  >
+                    ➖
+                  </button>
+                  <span>{{ item.quantity }}</span>
+                  <button
+                    @click="incrementQty(item)"
+                    :disabled="item.quantity >= item.spaces"
+                    class="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+                  >
+                    ➕
+                  </button>
+                </div>
+              </td>
+              <td class="p-2">{{ item.quantity * item.price }} AED</td>
+              <td class="p-2">
+                <button
+                  @click="removeItem(item)"
+                  class="text-red-600 hover:underline"
+                >
+                  🗑 Remove
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else class="text-red-500 mb-4">Your cart is empty.</p>
+
+        <p class="font-bold text-xl mb-4">Total: {{ cartTotal }} AED</p>
+        <div class="flex gap-4">
+          <button @click="toggleCart" class="bg-gray-300 px-4 py-2 rounded">
+            ⬅ Back
+          </button>
+          <button
+            @click="submitOrder"
+            :disabled="!isValidOrder"
+            :class="['px-4 py-2 rounded text-white', isValidOrder ? 'bg-green-600 hover:bg-green-800' : 'bg-green-300 cursor-not-allowed']"
+          >
+            ✅ Confirm Order
+          </button>
+        </div>
+      </section>
+
+      <footer class="text-center bg-green-400 text-white py-4 bottom-0 w-full">
+        &copy; 2025 After School Program
+      </footer>
+    </div>
+
+     
+    <script>
+      const BASE_URL = "https://afterschoolbackend-7s9g.onrender.com";
+      new Vue({
+        el: "#app",
+        data: {
+          user: {
+            firstName: "",
+            lastName: "",
+            address: "",
+            zip: "",
+            phone: "",
+            method: "Home",
+          },
+          lessons: [],
+          cart: [],
+          searchQuery: "",
+          sortAttribute: "",
+          sortOrder: "asc",
+          isLoading: false,
+          checkoutPage: false,
+        },
+        computed: {
+          cartTotal() {
+            return this.cart.reduce((t, i) => t + i.price * i.quantity, 0);
+          },
+          cartItemCount() {
+            return this.cart.reduce((t, i) => t + i.quantity, 0);
+          },
+          sortedLessons() {
+            const list = [...this.lessons];
+            if (!this.sortAttribute) return list;
+            return list.sort((a, b) => {
+              let valA = a[this.sortAttribute];
+              let valB = b[this.sortAttribute];
+              if (typeof valA === "string") valA = valA.toLowerCase();
+              if (typeof valB === "string") valB = valB.toLowerCase();
+              return this.sortOrder === "asc"
+                ? valA > valB
+                  ? 1
+                  : -1
+                : valA < valB
+                ? 1
+                : -1;
+            });
+          },
+          isValidOrder() {
+            return (
+              /^[A-Za-z]{2,}$/.test(this.user.firstName) &&
+              /^[A-Za-z]{2,}$/.test(this.user.lastName) &&
+              /^\d{7,15}$/.test(this.user.phone)
+            );
+          },
+        },
+        methods: {
+          goHome() {
+            this.checkoutPage = false;
+          },
+          incrementQty(item) {
+            if (item.quantity < item.spaces) item.quantity++;
+          },
+          decrementQty(item) {
+            if (item.quantity > 1) item.quantity--;
+            else this.removeItem(item);
+          },
+          async fetchLessons(query = "") {
+            this.isLoading = true;
+            try {
+              const res = await fetch(
+                `${BASE_URL}/search?q=${encodeURIComponent(query)}`
+              );
+              const data = await res.json();
+              this.lessons = data;
+            } catch (err) {
+              console.error("Error fetching lessons:", err);
+            } finally {
+              this.isLoading = false;
+            }
+          },
+          toggleCart() {
+            this.checkoutPage = !this.checkoutPage;
+          },
+          addToCart(lesson) {
+            const found = this.cart.find((l) => l._id === lesson._id);
+            if (found && found.quantity < lesson.spaces) found.quantity++;
+            else if (!found && lesson.spaces > 0)
+              this.cart.push({ ...lesson, quantity: 1 });
+          },
+          removeItem(item) {
+            this.cart = this.cart.filter((i) => i._id !== item._id);
+          },
+          async submitOrder() {
+            const fullName = `${this.user.firstName} ${this.user.lastName}`;
+            const orderData = {
+              name: fullName,
+              phone: this.user.phone,
+              cart: this.cart.map((item) => ({
+                _id: item._id,
+                subject: item.subject,
+                quantity: item.quantity,
+              })),
+            };
+     
+            try {
+              const res = await fetch(`${BASE_URL}/orders`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(orderData),
+              });
+              const msg = await res.text();
+              alert(msg);
+     
+              // ✅ Correct PUT URL and field name
+              for (let item of this.cart) {
+                const updatedSpaces = item.spaces - item.quantity;
+                await fetch(`${BASE_URL}/lessons/${item._id}`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ spaces: updatedSpaces }),
+                });
+              }
+     
+              this.cart = [];
+              this.toggleCart();
+              this.fetchLessons();
+            } catch (err) {
+              console.error("Order failed:", err);
+              alert("❌ Order failed");
+            }
+          },
+        },
+        watch: {
+          searchQuery(newVal) {
+            this.fetchLessons(newVal);
+          },
+        },
+        mounted() {
+          this.fetchLessons();
+        },
+      });
+    </script>
+     
+     
+  </body>
+</html>

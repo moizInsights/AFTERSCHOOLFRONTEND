@@ -1,0 +1,19 @@
+{
+  "name": "vite-tailwindcss",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "mongodb": "^6.15.0",
+    "path": "^0.12.7"
+  }
+}
