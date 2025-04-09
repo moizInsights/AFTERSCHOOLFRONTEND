@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 
 let db;
 
-const mongoUri = "mongodb+srv://moizuser1:Fattani123%40@cluster0.xwoau.mongodb.net/";
+const mongoUri = "mongodb+srv://Risith:2006vodka@cluster0.anfwr.mongodb.net/";
 
 async function connectDB() {
     try {
@@ -27,14 +27,14 @@ async function connectDB() {
         });
 
         db = client.db('afterschool');
-        console.log("✅ Connected to MongoDB successfully");
+        console.log(" Connected to MongoDB successfully");
 
         app.listen(app.get('port'), () => {
-            console.log(`🚀 Server running at http://localhost:${app.get('port')}`);
+            console.log(` Server running at http://localhost:${app.get('port')}`);
         });
 
     } catch (err) {
-        console.error("❌ Database connection error:", err);
+        console.error(" Database connection error:", err);
         process.exit(1); 
     }
 }
@@ -43,7 +43,7 @@ connectDB();
 
 app.param('collectionName', (req, res, next, collectionName) => {
     if (!db) {
-        console.error("❌ Database not connected yet!");
+        console.error(" Database not connected yet!");
         return res.status(500).json({ error: "Database connection not established yet" });
     }
     req.collection = db.collection(collectionName);
@@ -109,7 +109,7 @@ app.post('/collection/:collectionName', async (req, res, next) => {
 });
 
 
-// ✅ Specialized PUT for updating Spaces in Products
+//  Specialized PUT for updating Spaces in Products
 app.put('/collection/Products/:_id', async (req, res, next) => {
     try {
         const { _id } = req.params;
@@ -142,7 +142,7 @@ app.put('/collection/Products/:_id', async (req, res, next) => {
     }
 });
 
-// ✅ Generic PUT for any collection and any fields
+//  Generic PUT for any collection and any fields
 app.put('/collection/:collectionName/:_id', async (req, res, next) => {
     try {
         const result = await req.collection.updateOne(
