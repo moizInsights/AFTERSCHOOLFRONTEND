@@ -1,7 +1,7 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
-const app = express();
 const path = require('path');
+const app = express();
 
 app.use(express.json());
 
@@ -39,7 +39,7 @@ async function connectDB() {
 
 connectDB();
 
-// Set the collection based on the collectionName parameter.
+// Dynamically set the collection based on the collectionName parameter.
 app.param('collectionName', (req, res, next, collectionName) => {
   if (!db) {
     console.error("Database not connected yet!");
@@ -49,22 +49,21 @@ app.param('collectionName', (req, res, next, collectionName) => {
   next();
 });
 
-// Updated Search Route for any collection (e.g., lessons)
+// Generic search route
 app.get('/collection/:collectionName/search', async (req, res, next) => {
   const query = req.query.q;
   const collection = req.collection;
 
   try {
-    // If no search query is provided, return all documents.
+    // If no search query, return all
     if (!query) {
       console.log("No search query provided; fetching all documents.");
       const results = await collection.find({}).toArray();
       return res.json(results);
     }
-
     console.log("Search query received:", query);
-    console.log("Collection name:", req.params.collectionName);
 
+    // Perform search
     const results = await collection.find({
       $or: [
         { title: { $regex: query, $options: 'i' } },
@@ -79,7 +78,7 @@ app.get('/collection/:collectionName/search', async (req, res, next) => {
   }
 });
 
-// Generic GET: List all documents in a collection.
+// Generic GET
 app.get('/collection/:collectionName', async (req, res, next) => {
   try {
     const results = await req.collection.find({}).toArray();
@@ -89,13 +88,10 @@ app.get('/collection/:collectionName', async (req, res, next) => {
   }
 });
 
-// Serve static images from the "images" folder.
+// Serve static images if needed
 app.use('/images', express.static(path.join(__dirname, 'images')));
-app.get('/images/tabletennis.jpg', (req, res) => {
-  console.log("Request for image received");
-});
 
-// Generic POST: Insert a document into any collection.
+// Generic POST
 app.post('/collection/:collectionName', async (req, res, next) => {
   try {
     const result = await req.collection.insertOne(req.body);
@@ -108,7 +104,7 @@ app.post('/collection/:collectionName', async (req, res, next) => {
   }
 });
 
-// Specialized PUT for updating Spaces in Products (if needed).
+// Specialized PUT for "Products" collection only
 app.put('/collection/Products/:_id', async (req, res, next) => {
   try {
     const { _id } = req.params;
@@ -136,7 +132,7 @@ app.put('/collection/Products/:_id', async (req, res, next) => {
   }
 });
 
-// Generic PUT: Update a document in any collection.
+// Generic PUT
 app.put('/collection/:collectionName/:_id', async (req, res, next) => {
   try {
     const result = await req.collection.updateOne(
@@ -150,7 +146,7 @@ app.put('/collection/:collectionName/:_id', async (req, res, next) => {
   }
 });
 
-// Generic GET: Retrieve a document by id from any collection.
+// Generic GET by _id
 app.get('/collection/:collectionName/:_id', async (req, res, next) => {
   try {
     const result = await req.collection.findOne({ _id: new ObjectId(req.params._id) });

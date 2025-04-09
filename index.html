@@ -2,9 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>After School Activities</title>
+    <!-- Vue -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <!-- Optional CSS, e.g. from Tailwind or a custom style.css -->
     <link rel="stylesheet" crossorigin href="style.css" />
   </head>
   <body>
@@ -60,7 +62,7 @@
             :key="lesson._id"
             class="border p-4 shadow"
           >
-            <img :src="lesson.image" class="w-full h-32 object-cover mb-2" />
+            <img :src="lesson.image" class="w-full h-32 object-cover mb-2" alt="lesson image"/>
             <h3 class="text-xl font-bold">{{ lesson.subject }}</h3>
             <p><strong>Location:</strong> {{ lesson.location }}</p>
             <p><strong>Available:</strong> {{ lesson.spaces }}</p>
@@ -181,7 +183,7 @@
           <tbody>
             <tr v-for="item in cart" :key="item._id" class="border-b">
               <td class="p-2">
-                <img :src="item.image" class="w-16 h-16 object-cover rounded border" />
+                <img :src="item.image" class="w-16 h-16 object-cover rounded border" alt="lesson image"/>
               </td>
               <td class="p-2 font-medium">{{ item.subject }}</td>
               <td class="p-2">
@@ -223,7 +225,9 @@
     </div>
     
     <script>
-      const BASE_URL = "https://afterschoolbackend-7s9g.onrender.com";
+      const BASE_URL = "http://localhost:3000"; 
+      // If you're hosting your back end at a different URL, update this to match.
+
       new Vue({
         el: "#app",
         data: {
@@ -233,7 +237,7 @@
             address: "",
             zip: "",
             phone: "",
-            method: "Home",
+            method: "Home Delivery",
           },
           lessons: [],
           cart: [],
@@ -245,10 +249,10 @@
         },
         computed: {
           cartTotal() {
-            return this.cart.reduce((t, i) => t + i.price * i.quantity, 0);
+            return this.cart.reduce((total, item) => total + item.price * item.quantity, 0);
           },
           cartItemCount() {
-            return this.cart.reduce((t, i) => t + i.quantity, 0);
+            return this.cart.reduce((count, item) => count + item.quantity, 0);
           },
           sortedLessons() {
             const list = [...this.lessons];
@@ -259,8 +263,8 @@
               if (typeof valA === "string") valA = valA.toLowerCase();
               if (typeof valB === "string") valB = valB.toLowerCase();
               return this.sortOrder === "asc"
-                ? valA > valB ? 1 : -1
-                : valA < valB ? 1 : -1;
+                ? (valA > valB ? 1 : -1)
+                : (valA < valB ? 1 : -1);
             });
           },
           isValidOrder() {
@@ -285,12 +289,13 @@
           async fetchLessons(query = "") {
             this.isLoading = true;
             try {
-              // Updated URL including the "lessons" collection.
-              const res = await fetch(
-                `${BASE_URL}/collection/lessons/search?q=${encodeURIComponent(query)}`
-              );
-              const data = await res.json();
-              this.lessons = data;
+              const res = await fetch(`${BASE_URL}/collection/lessons/search?q=${encodeURIComponent(query)}`);
+              let data = await res.json();
+              // Convert _id to a string in case it comes in as an object
+              this.lessons = data.map(item => ({
+                ...item,
+                _id: item._id.toString()
+              }));
             } catch (err) {
               console.error("Error fetching lessons:", err);
             } finally {
@@ -302,9 +307,11 @@
           },
           addToCart(lesson) {
             const found = this.cart.find((l) => l._id === lesson._id);
-            if (found && found.quantity < lesson.spaces) found.quantity++;
-            else if (!found && lesson.spaces > 0)
+            if (found && found.quantity < lesson.spaces) {
+              found.quantity++;
+            } else if (!found && lesson.spaces > 0) {
               this.cart.push({ ...lesson, quantity: 1 });
+            }
           },
           removeItem(item) {
             this.cart = this.cart.filter((i) => i._id !== item._id);
@@ -322,7 +329,6 @@
             };
 
             try {
-              // Submit the order to the "order" collection (adjust if necessary)
               const res = await fetch(`${BASE_URL}/collection/order`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -331,7 +337,7 @@
               const msg = await res.text();
               alert(msg);
 
-              // Update lesson spaces after order is placed.
+              // Update lesson spaces in the DB
               for (let item of this.cart) {
                 const updatedSpaces = item.spaces - item.quantity;
                 await fetch(`${BASE_URL}/collection/lessons/${item._id}`, {
@@ -341,8 +347,11 @@
                 });
               }
 
+              // Clear cart
               this.cart = [];
+              // Return to lessons
               this.toggleCart();
+              // Fetch updated lessons
               this.fetchLessons();
             } catch (err) {
               console.error("Order failed:", err);
@@ -351,15 +360,16 @@
           },
         },
         watch: {
+          // Whenever searchQuery changes, refetch
           searchQuery(newVal) {
             this.fetchLessons(newVal);
           },
         },
         mounted() {
+          // Initial fetch of all lessons
           this.fetchLessons();
         },
       });
     </script>
   </body>
 </html>
-`
